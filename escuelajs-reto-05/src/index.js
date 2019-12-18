@@ -35,7 +35,7 @@ const loadData = async () => {
   if(next_fetch==='') 
     return
   try{
-    return !next_fetch ? await getData(API) : await getData(next_fetch)
+    return await getData(!next_fetch ? API : next_fetch)
   }catch(err){
     return console.log(err);
   }
