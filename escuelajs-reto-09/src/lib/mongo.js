@@ -9,42 +9,68 @@ const DB_NAME = config.dbName;
 const MONGO_URI = `mongodb+srv://${USER}:${PASSWORD}@reto-09-escuelajs-bgsv7.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`
 class MongoLib {
   constructor() {
-    this.client = new MongoClient(MONGO_URI, { useNewUrlParser: true });
     this.dbName = DB_NAME;
+    this.client = this.connect();
   }
 
-  connect() {
-    if (!MongoLib.connection) {
-      MongoLib.connection = new Promise((resolve, reject) => {
-        this.client.connect(err => {
-          if (err) {
-            reject(err);
-          }
-          console.log('Connected succesfully to mongo');
-          resolve(this.client.db(this.dbName));
-        });
-      });
-    }
-    return MongoLib.connection;
-  }
+  // connect() {
+  //   // if (!MongoLib.connection) {
+  //   //   MongoLib.connection = new Promise((resolve, reject) => {
+  //   //     this.client.connect(err => {
+  //   //       if (err) {
+  //   //         reject(err);
+  //   //       }
+  //   //       console.log('Connected succesfully to mongo');
+  //   //       resolve(this.client.db(this.dbName));
+  //   //     });
+  //   //   });
+  //   // }
+  //   // return MongoLib.connection;
+  //   return new Promise((resolve, reject) => {
+  //     this.client.connect(error => {
+  //       console.log('entre');
+  //       if (error) {
+  //         return reject(error);
+  //       }
 
+  //       // debug("Connected succesfully to mongo");
+  //       return resolve(this.client.db(this.dbName));
+  //     });
+  //   });
+  // }
+  connect(){
+    return new Promise((resolve,reject)=>{
+        MongoClient.connect(MONGO_URI,{
+            useNewUrlParser:true,
+            poolSize:5,
+            useUnifiedTopology: true
+        },
+        (err,client)=>{
+            if(err) return reject(err)
+            if(!client)
+                return reject('An error ocurred when connecting to mongo')
+            return resolve(client.db(this.dbName))
+        }
+        )
+    })
+}
   create(collection,data){
-    return this.connect().then(db=>{
+    return this.client.then(db=>{
       return db.collection(collection,data).insertOne(data)
     }).then(result=>result.insertedId)
   }
   getAll(collection){
-    return this.connect().then(db=>{
+    return this.client.then(db=>{
       return db.collection(collection).find().toArray()
     })
   }
   getById(collection,id){
-    return this.connect().then(db=>{
+    return this.client.then(db=>{
       return db.collection(collection).find({_id:ObjectId(id)})
     })
   }
   update(collection,id,data){
-    return this.connect().then(db=>{
+    return this.client.then(db=>{
       return db
         .collection(collection)
         .updateOne(
@@ -56,7 +82,7 @@ class MongoLib {
     })
   }
   delete(collection,id){
-    return this.connect().then(db=>{
+    return this.client.then(db=>{
       return db.collection(collection).deleteOne({ _id:ObjectId(id) }).then(()=>id)
     })
   }
