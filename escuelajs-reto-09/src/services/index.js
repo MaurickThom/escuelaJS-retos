@@ -15,6 +15,10 @@ class ProductService {
     const productCreated = await this.mongoDB.create(this.collection,product)
     return productCreated
   }
+  async getById(id){
+    const product = await this.mongoDB.getById(this.collection,id)
+    return product
+  }
 }
 
 module.exports = ProductService;

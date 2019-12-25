@@ -66,7 +66,7 @@ class MongoLib {
   }
   getById(collection,id){
     return this.client.then(db=>{
-      return db.collection(collection).find({_id:ObjectId(id)})
+      return db.collection(collection).find({_id:ObjectId(id)}).toArray()
     })
   }
   update(collection,id,data){

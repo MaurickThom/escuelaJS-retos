@@ -23,6 +23,12 @@ const platziStore = (app) => {
     const storeProducts = await productService.getProducts()
     res.status(200).json(storeProducts);
   });
+  router.get('/products/:id',async (req,res,next)=>{
+    const {id} = req.params
+    const product = await productService.getById(id)
+    console.log(product);
+    res.json(product)
+  })
   router.post('/products',async (req,res,next)=>{
     const {body:product} = req
     const createProduct = await productService.createProduct({product})
